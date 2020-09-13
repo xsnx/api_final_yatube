@@ -1,8 +1,14 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, mixins
 import django_filters.rest_framework
 from .models import Post, Comment, Follow, Group
 from . import serializers
 from .permissions import OnlyCreatorPermission
+
+
+class ViewSet(mixins.CreateModelMixin,
+              mixins.ListModelMixin,
+              viewsets.GenericViewSet):
+    pass
 
 
 class APIPostDetail(viewsets.ModelViewSet):
@@ -28,13 +34,13 @@ class APICommentDetail(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class APIGroup(viewsets.ModelViewSet):
+class APIGroup(ViewSet):
     queryset = Group.objects.all()
     serializer_class = serializers.GroupSerializer
     permission_classes = [OnlyCreatorPermission]
 
 
-class APIFollow(viewsets.ModelViewSet):
+class APIFollow(ViewSet):
     serializer_class = serializers.FollowSerializer
     permission_classes = [OnlyCreatorPermission]
     queryset = Follow.objects.all()
